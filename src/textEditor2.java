@@ -5,6 +5,7 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.Base64;
 
 
 public class textEditor2 extends JFrame implements ActionListener {
@@ -159,7 +160,9 @@ public class textEditor2 extends JFrame implements ActionListener {
         }
     }
 
-    // Method to open a file
+
+
+    // Method to open a file with decryption
     private void openFile() {
         JFileChooser fileChooser = new JFileChooser();
         int option = fileChooser.showOpenDialog(this);
@@ -167,7 +170,9 @@ public class textEditor2 extends JFrame implements ActionListener {
             try {
                 File file = fileChooser.getSelectedFile();
                 BufferedReader reader = new BufferedReader(new FileReader(file));
-                textPane.read(reader, null);
+                String encryptedText = reader.readLine();
+                String decryptedText = new String(Base64.getDecoder().decode(encryptedText));
+                textPane.setText(decryptedText);
                 reader.close();
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, "File could not be opened.");
@@ -175,15 +180,17 @@ public class textEditor2 extends JFrame implements ActionListener {
         }
     }
 
-    // Method to save a file
+    // This is to save a file with encryption
     private void saveFile() {
         JFileChooser fileChooser = new JFileChooser();
         int option = fileChooser.showSaveDialog(this);
         if (option == JFileChooser.APPROVE_OPTION) {
             try {
                 File file = fileChooser.getSelectedFile();
+                String plainText = textPane.getText();
+                String encryptedText = Base64.getEncoder().encodeToString(plainText.getBytes());
                 BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                textPane.write(writer);
+                writer.write(encryptedText);
                 writer.close();
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, "File could not be saved.");
