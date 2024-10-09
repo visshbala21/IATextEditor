@@ -1,8 +1,11 @@
 import javax.swing.*;
 import javax.swing.text.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+
 
 public class textEditor2 extends JFrame implements ActionListener {
     // GUI components that will be in the Text Editor
@@ -28,6 +31,20 @@ public class textEditor2 extends JFrame implements ActionListener {
         scrollPane = new JScrollPane(textPane);
         add(scrollPane, BorderLayout.CENTER);
 
+        // Here I am adding a document listener to update the word count in real time         
+        textPane.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) {
+                updateWordCount();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                updateWordCount();
+            }
+            public void changedUpdate(DocumentEvent e) {
+                updateWordCount();
+            }
+        });
+
+        
         // Create menu bar
         menuBar = new JMenuBar();
 
@@ -124,6 +141,7 @@ public class textEditor2 extends JFrame implements ActionListener {
             // Apply the attribute to the selected text
             doc.setCharacterAttributes(start, end - start, attr, false);
         }
+
     }
 
     // Action events for the menu items 
@@ -197,6 +215,14 @@ public class textEditor2 extends JFrame implements ActionListener {
     private void initializeAutosave() {
         autosaveTimer = new Timer(20000, e -> saveFile());
         autosaveTimer.start();
+    }
+
+
+    // This is the method that actually updates the word count 
+    private void updateWordCount(){
+        String text = textPane.getText().trim();
+        String[] words = text.isEmpty() ? new String[0] : text.split("\\s+");
+        wordCountLabel.setText("Word Count:" + words.length);
     }
 
     // Main method to launch the text editor
